@@ -24,7 +24,7 @@ byte frame[8][12] = {
   { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
 };
 
-byte frame1[8][12] = {
+byte frame_bd[8][12] = {
   { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
   { 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0 },
   { 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0 },
@@ -35,10 +35,12 @@ byte frame1[8][12] = {
   { 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 }
 };
 byte b[3][2] = {
-  { 1, 1 },
-  { 1, 1 },
+  { 0, 1 },
+  { 0, 1 },
   { 1, 1 }
 };
+
+
 
 void clear_line() {
   bool full = true;
@@ -69,7 +71,7 @@ void game_over() {
         break;
       }
     if (full) {
-      ser.renderBitmap(frame1, 8, 12); 
+      ser.renderBitmap(frame_bd, 8, 12); 
       Serial.println("Game over:");
       delay(10000);
       break;
@@ -77,8 +79,12 @@ void game_over() {
   }
 }
 
-
-void kn(int data) {
+bool kn(int data) {
+  if (data == 0)
+    for (int i = 0; i < 8; i++)
+      for (int j = 0; j < 12; j++)
+        frame_bd[i][j] = frame[i][j];
+	
   for (int i = 0; i < 3; i++)
     for (int j = 0; j < 2; j++)
       switch (angle) {
@@ -113,14 +119,32 @@ void kn(int data) {
             break;
           }
       }
+  if(data == 1){
+    int cnt_f = 0;
+    int cnt_f_bd = 0;
+    for(int i = 0; i<8; i++)
+      for(int j = 0; j<12; j++){
+        if(frame[i][j] == 1) cnt_f++;
+        if(frame_bd[i][j] == 1) cnt_f_bd++;
+      }
+    if (cnt_f_bd > cnt_f){
+      for (int i = 0; i < 8; i++)
+        for (int j = 0; j < 12; j++)
+          frame[i][j] = frame_bd[i][j];
+      return false;
+    } else return true;
+  }
 }
+
+
+
 
 void setup() {
 
   Serial.begin(9600);
   ser.begin();
   ser.renderBitmap(frame, 8, 12);
-  ser.renderBitmap(frame1, 8, 12);
+  ser.renderBitmap(frame_bd, 8, 12);
   pinMode(0, INPUT_PULLUP);
   pinMode(1, INPUT_PULLUP);
   pinMode(2, INPUT_PULLUP);
@@ -164,14 +188,15 @@ void loop() {
       povorot = 1;
     }
   } else povorot = 0;
-  kn(1);
+  bool stat = kn(1);
   delay(10);
-  if ((x <= 0) || (frame[y][x - 1] == 1)) {
+  if ((x <= 0) || !stat) {
     clear_line();
     game_over();
     x = 11;
     y = 1;
-    frame[y][x] = 1;
+    kn(0);
+    kn(1);
   }
 
 
