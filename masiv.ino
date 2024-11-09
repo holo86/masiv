@@ -11,7 +11,7 @@ int j;
 int score = 0;
 int scorast;
 int povorot;
-//
+
 
 int angle;
 byte frame[8][12] = {
@@ -73,7 +73,7 @@ void game_over() {
       }
     if (full) {
       ser.renderBitmap(frame_bd, 8, 12); 
-      Serial.println("Game over:");
+      Serial.println("Noob!");
       delay(10000);
       break;
     }
