@@ -11,6 +11,7 @@ int j;
 int score = 0;
 int scorast;
 int povorot;
+//
 
 int angle;
 byte frame[8][12] = {
